@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="aaron">
+
+	<select id="getHeroList" resultType="com.aaron.entity.Hero">
+		select * from heros;
+	</select>
+	
+	<select id="insert" parameterType="com.aaron.entity.Hero">
+		insert into heros(id, name, nickname)
+		values(#{id}, #{name}, #{nickname});
+	</select>
+	
+	<select id="getHeroById" parameterType="int" resultType="Hero">
+		select * from heros
+		where id = #{id};
+	</select>
+	
+	<select id="delete" parameterType="int">
+		delete from heros where id = #{id};
+	</select>
+	
+	<select id="deleteByMutil" parameterType="Map">
+		delete from heros where id = #{id} or name = #{name};
+	</select>
+	
+	<select id="updateById" parameterType="int">
+		update heros set name = #{name}, nickname = #{nickname} where id = #{id};
+	</select>
+	
+	<!-- 多表查询 -->
+	<select id="getEmp" resultType="Map">
+		select e.empName, e.empSal, d.name 
+		from emp e inner join dept d
+		on e.deptNo = d.deptNo;
+	</select>
+	
+	<!-- 模糊查询 -->
+	<select id="getEmpLike" parameterType="String" resultType="Map">
+		select * from emp where empName like #{name};
+	</select>
+	
+	<!-- 日期查询 -->
+	<select id="getdate" parameterType="Date" resultType="Map">
+		select * from hql_test where birthday = '2018-08-07';
+	</select>
+
+</mapper>

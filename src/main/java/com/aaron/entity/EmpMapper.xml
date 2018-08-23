@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="com.aaron.dao.EmpDao">
+
+	<select id="getList" resultType="Emp">
+		select * from emp;
+	</select>
+	
+	<!-- 小于符号需要转义 -->
+	<select id="selectEmpByDate" resultType="Emp" parameterType="date">
+		select * from emp where birthday &lt; #{birthday};
+	</select>
+	
+	<select id="selectEmpByStringDate" resultType="Emp" parameterType="String">
+		select * from emp where birthday > #{birthday};
+	</select>
+	
+	
+	
+	
+<!--   多对一     -->
+	<resultMap type="Emp" id="empMap">
+		<id property="empNo" column="empNo"/>
+		<result property="empName" column="empName"/>
+		<result property="empSal" column="empSal"/>
+		<result property="empAge" column="empAge"/>
+		<result property="deptNo" column="deptNo"/>
+		<result property="birthday" column="birthday"/>
+		<!--  多对一   -->
+		<association property="dept" javaType="Dept">
+			<id property="deptNo" column="deptNo"/>
+			<result property="name" column="name"/>
+			<result property="location" column="location"/>
+		</association>
+	</resultMap>
+	
+<!-- 复杂对象（多表查询） -->
+	<select id="userList" resultMap="empMap">
+		select * 
+		from emp e inner join dept d
+		on e.deptNo = d.deptNo;
+	</select>
+	
+	
+	<select id="getEmpById" resultMap="empMap" parameterType="int">
+		select * 
+		from emp e inner join dept d
+		on e.deptNo = d.deptNo
+		where empNo = #{id};
+	</select>
+	
+	
+<!--   一对多     -->
+	<resultMap type="Dept" id="deptMap">
+		<id property="deptNo" column="deptNo"/>
+		<result property="name" column="name"/>
+		<result property="location" column="location"/>
+		<!--  一对多   -->
+		<collection property="emps" javaType="Emp">
+			<id property="empNo" column="empNo"/>
+			<result property="empName" column="empName"/>
+			<result property="empSal" column="empSal"/>
+			<result property="empAge" column="empAge"/>
+			<result property="deptNo" column="deptNo"/>
+			<result property="birthday" column="birthday"/>
+		</collection>
+	</resultMap>
+	
+	<select id="getDeptById" resultMap="deptMap" parameterType="int">
+		select * 
+		from dept d inner join emp e
+		on d.deptNo = e.deptNo 
+		where d.deptNo = #{id};
+	</select>
+	
+<!-- 多对多 -->
+	<select id="getMultiList" resultMap="deptMap" >
+		select * 
+		from dept d inner join emp e
+		on d.deptNo = e.deptNo ;
+	</select>
+	
+<!-- 其别名  不用设置 resultMap 直接将部门信息放在集合中 -->
+	<select id="getAliasList" parameterType="int" resultType="Emp" >
+		select e.empNo, e.empName, 
+		
+		e.deptNo 'dept.deptNo',
+		d.name 'dept.name',
+		d.location 'dept.location'
+		
+		from dept d inner join emp e
+		on d.deptNo = e.deptNo ;
+	</select>
+	
+<!-- 条件查询
+	<select id="selectEmpByParam" resultType="Emp" >
+		select * from emp
+		<where>
+			<if test="empName != null">
+				empName like #{empName}
+			</if>
+			<if test="empSal != 0">
+				and empSal > #{empSal}
+			</if>
+		</where>
+	</select>
+	 -->
+	
+<!-- 相当于 if else 从上往下走，只执行一个条件 -->
+	<select id="selectEmpByParam" resultType="Emp" >
+		select * from emp
+		<where>
+			<choose>
+				<when test="empName != null">
+					empName like #{empName}
+				</when>
+				<when test="empSal != null">
+					and empSal > #{empSal}
+				</when>
+				<otherwise>
+					1 = 1
+				</otherwise>
+			</choose>
+		</where>
+	</select>
+	
+	<update id="updateEmp" parameterType="Emp">
+		update emp
+		<set>
+			<if test="empName != null">
+				empName = #{empName},
+			</if>
+			<if test="empSal != null">
+				empSal = #{empSal},
+			</if>
+			<if test="empAge != null">
+				empAge = #{empAge},
+			</if>
+		</set>
+		where empNo = #{empNo}
+	</update>
+	
+<!-- 批量操作  循环 -->
+	<!-- 同时添加三个用户 -->
+	<insert id="addBulkEmp" parameterType="List">
+		insert into emp (empNo, empName, empSal) values
+		<foreach collection="list" item="emp" separator=",">
+			(#{emp.empNo}, #{emp.empName}, #{emp.empSal})
+		</foreach>
+	</insert>
+	
+<!-- 批量操作  删除 -->
+	<!-- 同时删除多个用户 -->
+	<insert id="deleteBulkEmp" parameterType="List">
+		delete from emp where empNo in 
+		<foreach collection="list" item="empNo" separator="," open="(" close=")">
+			#{empNo}
+		</foreach>
+	</insert>
+
+<!-- 分页 -->
+	<select id="paging" parameterType="Map" resultType="Emp">
+		select * from emp limit #{first}, #{size};
+	</select>
+
+</mapper>

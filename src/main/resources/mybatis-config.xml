@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+	<typeAliases>
+	   <!--  
+     	<typeAlias alias="Heros" type="com.aaron.entity.Hero" />
+       -->
+        <package name="com.aaron.entity"/>
+	</typeAliases>
+	
+	<environments default="development">
+	    <!-- 配置数据库连接环境 -->
+		<environment id="development">
+		    <!-- 事务管理器使用JDBC事务 -->
+			<transactionManager type="JDBC" />
+			<!-- 配置数据源 -->
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver" />
+				<property name="url" value="jdbc:mysql:///test" />
+				<property name="username" value="root" />
+				<property name="password" value="123" />
+			</dataSource>
+		</environment>	
+	</environments>
+	
+	<!-- 指定sql映射文件的路径 -->
+	<mappers>
+	   <mapper resource="com/aaron/entity/HeroMapper.xml"/> 
+	   <mapper resource="com/aaron/entity/EmpMapper.xml"/>  	
+	   <mapper resource="com/aaron/entity/OrdersCustomMapper.xml"/>  	   
+	</mappers>
+	
+	
+	 
+</configuration>	 
